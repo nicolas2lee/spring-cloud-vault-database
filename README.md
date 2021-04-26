@@ -41,8 +41,8 @@ Output:
     ./vault write database/roles/my-role \
         db_name=my-postgresql-database \
         creation_statements="CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO \"{{name}}\";" \
-        default_ttl="1h" \
-        max_ttl="24h"
+        default_ttl="20s" \
+        max_ttl="1m"
 
 Output:
 
@@ -66,3 +66,6 @@ curl --header "X-Vault-Token: s.Xjq8H2OzAvjJrL1BhuvTodoL" http://127.0.0.1:8200/
 
 
 s.5nMK4V9q5i9PBmmzkLAgi0l8
+
+curl --header "X-Vault-Token: s.5nMK4V9q5i9PBmmzkLAgi0l8" --request PUT -d '{"lease_id":"database/creds/my-role/ReLrjDds8ywWA97iOY9UUpTm", "increment":"60"}'  http://127.0.0.1:8200/v1/sys/leases/renew
+ 

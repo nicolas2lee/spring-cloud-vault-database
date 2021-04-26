@@ -15,4 +15,17 @@ logging:
   level:
     root: INFO
     org.springframework.cloud.vault: TRACE
+    org.springframework.vault: DEBUG
     org.springframework.boot.context.config.ConfigFileApplicationListener: TRACE
+    org.springframework.http.client: DEBUG
+    org.springframework.web.client: DEBUG
+    org.apache.http: DEBUG
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
