@@ -3,9 +3,27 @@
     docker run --name postgres -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin -p 15432:5432 -d postgres
     
 # Setup vault
-Unseal Key: x6iGjZf3IOdcVDpVJQXqXMK1ONYN3XP4U8BID9eL9ck=
-Root Token: s.Xjq8H2OzAvjJrL1BhuvTodoL
+## Run vault server locally in dev env
+    
+    vault server -dev
+    
+Unseal Key: 27d1DDy9ViBE8VupbSEVwIMsJlMUJU6QbiTKJqvThO4=
+Root Token: s.Su8RCiQUgIqZmjAFstfsmxR1
 
+    
+    export VAULT_ADDR='http://127.0.0.1:8200'
+    
+    export VAULT_TOKEN="s.Su8RCiQUgIqZmjAFstfsmxR1"
+## Enable vault key value engine 
+### Spring cloud vault
+    /secret/{application}/{profile}
+    /secret/{application}
+    /secret/{default-context}/{profile}
+    /secret/{default-context}
+### Set vault key value secret
+
+     ./vault kv put secret/hello test.password=bar
+     
 ## Enable vault database engine
 
     vault secrets enable database
@@ -40,7 +58,9 @@ Output:
       
     ./vault write database/roles/my-role \
         db_name=my-postgresql-database \
-        creation_statements="CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO \"{{name}}\";" \
+        creation_statements="CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; \
+        GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO \"{{name}}\";
+        GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO \"{{name}}\";" \
         default_ttl="20s" \
         max_ttl="1m"
 
