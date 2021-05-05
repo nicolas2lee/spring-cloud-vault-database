@@ -23,8 +23,8 @@ Root Token: s.Su8RCiQUgIqZmjAFstfsmxR1
 ### Set vault key value secret
 
      ./vault kv put secret/hello test.password=bar
-     
-## Enable vault database engine
+## Enable vault database dynamic secret     
+### Enable vault database engine
 
     vault secrets enable database
 
@@ -32,7 +32,7 @@ Output:
     
     Success! Enabled the database secrets engine at: database/
   
-## Create postgresql database config
+### Create postgresql database config
 
     vault write database/config/my-postgresql-database `
         plugin_name=postgresql-database-plugin `
@@ -48,7 +48,7 @@ Output:
         username="admin" \
         password="admin"
       
-## Create role for postgres
+### Create role for postgres
 
     vault write database/roles/my-role `
         db_name=my-postgresql-database `
@@ -68,11 +68,11 @@ Output:
 
     Success! Data written to: database/roles/my-role
     
-## Read my role
+### Read my role
 
     vault read database/creds/my-role
 
-## Use http client to get config
+### Use http client to get config
 
 curl --header "X-Vault-Token: s.Xjq8H2OzAvjJrL1BhuvTodoL" `
     --request GET http://127.0.0.1:8200/v1/database/config/my-postgresql-database
@@ -88,4 +88,34 @@ curl --header "X-Vault-Token: s.Xjq8H2OzAvjJrL1BhuvTodoL" http://127.0.0.1:8200/
 s.5nMK4V9q5i9PBmmzkLAgi0l8
 
 curl --header "X-Vault-Token: s.5nMK4V9q5i9PBmmzkLAgi0l8" --request PUT -d '{"lease_id":"database/creds/my-role/ReLrjDds8ywWA97iOY9UUpTm", "increment":"60"}'  http://127.0.0.1:8200/v1/sys/leases/renew
- 
+
+## Enable vault database static role
+### Creation role in postgresql
+    
+    psql -U admin
+    admin=# CREATE ROLE "vault-edu" WITH LOGIN PASSWORD 'mypassword';
+    admin=# GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "vault-edu";
+    admin=# GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO "vault-edu";
+    admin=# \du
+    
+### Setup vault for static role
+    
+    ./vault write database/config/postgresql \
+        plugin_name=postgresql-database-plugin \
+        allowed_roles="*" \
+        connection_url=postgresql://{{username}}:{{password}}@localhost:15432/postgres?sslmode=disable \
+        username="admin" \
+        password="admin"
+
+        
+First, create a file named, rotation.sql with following SQL statements.
+
+    ALTER USER "{{name}}" WITH PASSWORD '{{password}}';
+    
+    ./vault write database/static-roles/education \
+        db_name=postgresql \
+        rotation_statements=@rotation.sql \
+        username="vault-edu" \
+        rotation_period=60
+        
+        

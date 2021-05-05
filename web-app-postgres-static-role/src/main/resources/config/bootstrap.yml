@@ -1,0 +1,22 @@
+spring.application.name: hello-static-role
+spring:
+  cloud:
+    vault:
+      token: s.Su8RCiQUgIqZmjAFstfsmxR1
+      host: localhost
+      port: 8200
+      connection-timeout: 5000
+      read-timeout: 15000
+      uri: http://localhost:8200
+      scheme: http
+      fail-fast: true
+      database:
+        enabled: true
+        role: education
+        static-role: true
+
+
+#    username-property: spring.datasource.username
+#    password-property: spring.datasource.password
+#  application:
+#    name: demo-vault
